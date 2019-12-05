@@ -58,7 +58,6 @@ public class GameTablut implements Game {
 	 *  
 	 * @param state the state of the game
 	 * @param a the action to be analyzed
-	 * @return the new state of the game
 	 * @throws BoardException try to move a pawn out of the board
 	 * @throws ActionException the format of the action is wrong
 	 * @throws StopException try to not move any pawn

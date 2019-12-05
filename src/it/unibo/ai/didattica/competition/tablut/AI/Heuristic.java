@@ -19,15 +19,17 @@ public class Heuristic {
 	
 	
 	/**
-     * The evaluation function for the board state. Although several
-     * different functions were considered and tested, along with various weights
-     * for the different variables, the evaluation function below turned out to
-     * work best. An analysis of evaluation functions is included in the report.
-     */
+	 * The evaluation function for the board state.
+	 * 
+	 * @param state 	state to be evaluated
+	 * @param player	player according which we have to calculate the heuristic
+	 * @return the heuristic value of the given state
+	 */
 	public static double evaluation(State state, State.Turn player) {
 		int turn;
 		turn = state.turnNumber;
 		State.Turn opponent;
+		double val = 0.0;
 		if(player == State.Turn.WHITE)
 			opponent = State.Turn.BLACK;
 		else
@@ -48,10 +50,7 @@ public class Heuristic {
 		double evaluationValue = 0.0;
     	if (player == State.Turn.WHITE) 
     	{
-			/*
-			 * The White evaluation function becomes more aggressive as the game progresses in terms of:
-			 * the number of moves for the king to reach a corner
-			 */
+    		// check if the current state is a winning or losing one and in the case return immediately
     		if (state.getTurn() == State.Turn.WHITEWIN)
     			return Double.POSITIVE_INFINITY;
     		if (state.getTurn() == State.Turn.BLACKWIN)
@@ -65,20 +64,25 @@ public class Heuristic {
     			evaluationValue = yourPieceValue - oppPieceValue + 3.0 * kingMovesToEscape(state);
     		}
 */
+			/*
+			 * The White evaluation function becomes more aggressive as the game progresses in terms of:
+			 * the number of moves for the king to reach an escape position
+			 */
+    		val = kingInStrategicPos(state);
+    		if(val != 0.0) {
+    			System.out.println(state);
+    			System.out.println("Heuristic: " + val);
+    		}
     		if (turn < 40) 
-    			evaluationValue = yourPieceValue - oppPieceValue - enemyPiecesAroundKing(state);
+    			evaluationValue = yourPieceValue - oppPieceValue - enemyPiecesAroundKing(state) + val;
     		else if (turn < 70) 
-    			evaluationValue = yourPieceValue - oppPieceValue - 2.0 * enemyPiecesAroundKing(state);
+    			evaluationValue = yourPieceValue - oppPieceValue - 2.0 * enemyPiecesAroundKing(state) + val;
     		else 
-    			evaluationValue = yourPieceValue - oppPieceValue - 3.0 * enemyPiecesAroundKing(state);
+    			evaluationValue = yourPieceValue - oppPieceValue - 3.0 * enemyPiecesAroundKing(state) + val;
 		} 
     	else 
 		{
-			/*
-			 * The Black evaluation function becomes more aggressive as the game progresses in terms of:
-			 * the number of enemy pieces around the king and
-			 * the number of moves for the king to reach a corner
-			 */
+    		// check if the current state is a winning or losing one and in the case return immediately
 			if (state.getTurn() == State.Turn.BLACKWIN)
 				return Double.POSITIVE_INFINITY;
     		if (state.getTurn() == State.Turn.WHITEWIN)
@@ -91,6 +95,12 @@ public class Heuristic {
 			evaluationValue = 3 * (yourPieceValue - oppPieceValue) + piecesAroundCorners(state) - 1.5 * kingMovesToEscape(state) + 12 * enemyPiecesAroundKing(state);
 		}
 */
+			/*
+			 * The Black evaluation function becomes more aggressive as the game progresses in terms of:
+			 * the number of enemy pieces around the king and
+			 * the number of moves for the king to reach an escape position
+			 */
+
 			if (turn < 40) 
 				evaluationValue = yourPieceValue - oppPieceValue + 2*enemyPiecesAroundKing(state);
 			else if (turn < 70) 
@@ -185,6 +195,187 @@ public class Heuristic {
 		return value;
 	}
 	
+	public static double kingInStrategicPos(State state) {
+		double value = 0.0;
+		Coord kingPosition = state.getKingPosition();
+		int i = 0;
+		int length = state.getBoard().length;
+		boolean occupied = false;
+		boolean threatened = false;
+		
+		if(kingPosition.x == 2) {
+			for(i = 0; i < length; i++) 
+				// se le caselle della stessa riga non sono vuote e non c'è il re saranno occupate da una pedina
+				if ((state.getPawn(kingPosition.x, i) != State.Pawn.EMPTY) && (state.getPawn(kingPosition.x, i) != State.Pawn.KING))
+					occupied = true;
+			// se la riga non è occupata da nessuno
+			if(!occupied) {
+				// se non c'è una pedina nera sopra e sotto e il re non si trova sotto il campo nemico
+				if ((state.getPawn(kingPosition.x-1, kingPosition.y) != State.Pawn.BLACK) && 
+						(state.getPawn(kingPosition.x+1, kingPosition.y) != State.Pawn.BLACK) && (kingPosition.y != 4)) 
+					return 500;
+				else {
+					// verifico le caselle sotto destra
+					for(i = kingPosition.y; i < length; i++) {
+						// se trova una pedina bianca è coperto
+						if (state.getPawn(kingPosition.x+1, i) == State.Pawn.WHITE)
+							break;
+						// se trova una pedina nera è minacciato
+						if (state.getPawn(kingPosition.x+1, i) == State.Pawn.BLACK)
+							threatened = true;
+					}
+					// verifico le caselle sotto sinistra
+					for(i = kingPosition.y; i >= 0; i--) {
+						if (state.getPawn(kingPosition.x+1, i) == State.Pawn.WHITE)
+							break;
+						if (state.getPawn(kingPosition.x+1, i) == State.Pawn.BLACK)
+							threatened = true;
+					}
+					// verifico tutte le caselle sotto
+					for (i = kingPosition.x+1; i < length; i++) {
+						if (state.getPawn(i, kingPosition.y) == State.Pawn.WHITE)
+							break;
+						if (state.getPawn(i, kingPosition.y) == State.Pawn.BLACK)
+							threatened = true;
+					}
+					if(!threatened)
+						return 500;
+				}
+			}		
+		}
+		
+		occupied = false;
+		threatened = false;		
+		if(kingPosition.x == 6) {
+			for(i = 0; i < length; i++) 
+				// se le caselle della stessa riga non sono vuote e non c'è il re saranno occupate da una pedina
+				if ((state.getPawn(kingPosition.x, i) != State.Pawn.EMPTY) && (state.getPawn(kingPosition.x, i) != State.Pawn.KING))
+					occupied = true;
+			// se la riga non è occupata da nessuno
+			if(!occupied) {
+				// se non c'è una pedina nera sopra e sotto e il re non si trova sopra il campo nemico
+				if ((state.getPawn(kingPosition.x-1, kingPosition.y) != State.Pawn.BLACK) && 
+						(state.getPawn(kingPosition.x+1, kingPosition.y) != State.Pawn.BLACK) && (kingPosition.y != 4)) 
+					return 500;
+				else {
+					// verifico le caselle sopra destra
+					for(i = kingPosition.y; i < length; i++) {
+						// se trova una pedina bianca è coperto
+						if (state.getPawn(kingPosition.x-1, i) == State.Pawn.WHITE)
+							break;
+						// se trova una pedina nera è minacciato
+						if (state.getPawn(kingPosition.x-1, i) == State.Pawn.BLACK)
+							threatened = true;
+					}
+					// verifico le caselle sopra sinistra
+					for(i = kingPosition.y; i >= 0; i--) {
+						if (state.getPawn(kingPosition.x-1, i) == State.Pawn.WHITE)
+							break;
+						if (state.getPawn(kingPosition.x-1, i) == State.Pawn.BLACK)
+							threatened = true;
+					}
+					// verifico tutte le caselle sopra
+					for (i = kingPosition.x-1; i >= 0; i--) {
+						if (state.getPawn(i, kingPosition.y) == State.Pawn.WHITE)
+							break;
+						if (state.getPawn(i, kingPosition.y) == State.Pawn.BLACK)
+							threatened = true;
+					}
+					if(!threatened)
+						return 500;
+				}
+			}		
+		}
+		
+		occupied = false;
+		threatened = false;
+		if(kingPosition.y == 2) {
+			for(i = 0; i < length; i++) 
+				// se le caselle della stessa colonna non sono vuote e non c'è il re saranno occupate da una pedina
+				if ((state.getPawn(i, kingPosition.y) != State.Pawn.EMPTY) && (state.getPawn(i, kingPosition.y) != State.Pawn.KING))
+					occupied = true;
+			// se la colonna non è occupata da nessuno
+			if(!occupied) {
+				// se non c'è una pedina nera a sinistra e destra e il re non si trova a sinistra il campo nemico
+				if ((state.getPawn(kingPosition.x, kingPosition.y-1) != State.Pawn.BLACK) && 
+						(state.getPawn(kingPosition.x, kingPosition.y+1) != State.Pawn.BLACK) && (kingPosition.x != 4)) 
+					return 500;
+				else {
+					// verifico le caselle a destra sotto
+					for(i = kingPosition.x; i < length; i++) {
+						// se trova una pedina bianca è coperto
+						if (state.getPawn(i, kingPosition.y+1) == State.Pawn.WHITE)
+							break;
+						// se trova una pedina nera è minacciato
+						if (state.getPawn(i, kingPosition.y+1) == State.Pawn.BLACK)
+							threatened = true;
+					}
+					// verifico le caselle a destra sopra
+					for(i = kingPosition.x; i >= 0; i--) {
+						if (state.getPawn(i, kingPosition.y+1) == State.Pawn.WHITE)
+							break;
+						if (state.getPawn(i, kingPosition.y+1) == State.Pawn.BLACK)
+							threatened = true;
+					}
+					// verifico tutte le caselle a destra
+					for (i = kingPosition.y+1; i < length; i++) {
+						if (state.getPawn(kingPosition.x, i) == State.Pawn.WHITE)
+							break;
+						if (state.getPawn(kingPosition.x, i) == State.Pawn.BLACK)
+							threatened = true;
+					}
+					if(!threatened)
+						return 500;
+				}
+			}		
+		}
+		
+		occupied = false;
+		threatened = false;
+		if(kingPosition.y == 6) {
+			for(i = 0; i < length; i++) 
+				// se le caselle della stessa colonna non sono vuote e non c'è il re saranno occupate da una pedina
+				if ((state.getPawn(i, kingPosition.y) != State.Pawn.EMPTY) && (state.getPawn(i, kingPosition.y) != State.Pawn.KING))
+					occupied = true;
+			// se la colonna non è occupata da nessuno
+			if(!occupied) {
+				// se non c'è una pedina nera a sinistra e destra e il re non si trova a destra il campo nemico
+				if ((state.getPawn(kingPosition.x, kingPosition.y-1) != State.Pawn.BLACK) && 
+						(state.getPawn(kingPosition.x, kingPosition.y+1) != State.Pawn.BLACK) && (kingPosition.x != 4)) 
+					return 500;
+				else {
+					// verifico le caselle a sinistra sotto
+					for(i = kingPosition.x; i < length; i++) {
+						// se trova una pedina bianca è coperto
+						if (state.getPawn(i, kingPosition.y-1) == State.Pawn.WHITE)
+							break;
+						// se trova una pedina nera è minacciato
+						if (state.getPawn(i, kingPosition.y-1) == State.Pawn.BLACK)
+							threatened = true;
+					}
+					// verifico le caselle a sinistra sopra
+					for(i = kingPosition.x; i >= 0; i--) {
+						if (state.getPawn(i, kingPosition.y-1) == State.Pawn.WHITE)
+							break;
+						if (state.getPawn(i, kingPosition.y-1) == State.Pawn.BLACK)
+							threatened = true;
+					}
+					// verifico tutte le caselle a sinistra
+					for (i = kingPosition.y-1; i >= 0; i--) {
+						if (state.getPawn(kingPosition.x, i) == State.Pawn.WHITE)
+							break;
+						if (state.getPawn(kingPosition.x, i) == State.Pawn.BLACK)
+							threatened = true;
+					}
+					if(!threatened)
+						return 500;
+				}
+			}		
+		}
+		
+		return value;
+	}
+	
 	/**
 	 * This method returns a value representing the number of king moves to all the escapes.
 	 * Given a state, the method checks the min number of moves to each escape, and returns
@@ -199,23 +390,24 @@ public class Heuristic {
     	ArrayList<Action> kingMoves = state.getLegalMovesForPosition(AlphaBetaSearch.game, kingPosition);
     	
     	double moveDistanceValue = 0.0;
-    	if (!kingMoves.isEmpty()) { // If the king actually has moves        	
+    	if (!kingMoves.isEmpty()) 
+    	{ // If the king actually has moves        	
         	
     		// Stores the min number of moves to reach each of the 16 escape positions
     		int [] distances = new int [16];
 
     		// Iterate through all the escape positions, calculating the min number of moves to reach each one
-    		int cornerIdx = 0;
+    		int escapeIdx = 0;
         	for (Coord escape : state.whiteWinPos) {
-        		distances[cornerIdx] = calcMinMovesToEscape(state, escape, 1, kingPosition);
-        		cornerIdx++;
+        		distances[escapeIdx] = calcMinMovesToEscape(state, escape, 1, kingPosition);
+        		escapeIdx++;
         	}
         	// Generate the move's value based on proximity to the corner
         	for (int i = 0; i < distances.length; i++) {
         		switch (distances[i]) {
                 case 1:  moveDistanceValue += 15; // Being 1 move away is much more valuable
                          break;
-                case 2:  moveDistanceValue += 1;
+                case 2:  moveDistanceValue += 2;
                          break;
                 default: moveDistanceValue += 0;
                          break;
@@ -225,18 +417,18 @@ public class Heuristic {
     	    	
     	return moveDistanceValue;
     }
-    
+
     /**
      * This method calculates the min number of moves for the king to reach a given escape position.
      * 
      * This is done by ignoring opponent moves. We simply care about how many consecutive moves it would
-     * take the king to reach a specific corner. This is because it becomes very difficult (and costly) to
-     * predict opponent moves as well.
+     * take the king to reach a specific escape position.
      * 
      * This method projects a move onto the board state and recursively goes to the following move, but does
      * not actually process the move in order to be more efficient (time and memory-wise).
+     * 
      */
-    public static int calcMinMovesToEscape(State state, Coord corner, int moveCt, Coord kingPosition) {    	
+    public static int calcMinMovesToEscape(State state, Coord escape, int moveCt, Coord kingPosition) {    	
     	// Termination condition - either we're in a corner or it takes too many moves and thus becomes irrelevant
     	if (moveCt == 3 || state.whiteWinPos.contains(kingPosition)) {
     		return moveCt;
@@ -251,8 +443,8 @@ public class Heuristic {
     	int moveIdx = 0;
     	for (Action action : kingMoves) {
 			// If move brings you closer to the corner, attempt it
-			if (action.getFromPosition().distance(corner) > action.getToPosition().distance(corner)) {            	
-                moveCounts[moveIdx] = calcMinMovesToEscape(state, corner, moveCt + 1, action.getToPosition());
+			if (action.getFromPosition().distance(escape) > action.getToPosition().distance(escape)) {            	
+                moveCounts[moveIdx] = calcMinMovesToEscape(state, escape, moveCt + 1, action.getToPosition());
                 moveIdx++;
 			}
     	}

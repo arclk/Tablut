@@ -75,6 +75,12 @@ public class TablutHumanClient extends TablutClient {
 						System.out.println("DRAW!");
 						System.exit(0);
 					}
+					System.out.println(this.getCurrentState().whiteCoords);
+					System.out.println(this.getCurrentState().getPawn(1, 3));
+					System.out.println(this.getCurrentState().getPawn(3, 1));
+					System.out.println(this.getCurrentState().getBox(1, 3));
+					System.out.println(this.getCurrentState().getBox(3, 1));
+					
 
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -108,6 +114,8 @@ public class TablutHumanClient extends TablutClient {
 						System.out.println("DRAW!");
 						System.exit(0);
 					}
+					
+					System.out.println(this.getCurrentState().blackCoords);
 				} catch (Exception e) {
 					e.printStackTrace();
 					System.exit(1);

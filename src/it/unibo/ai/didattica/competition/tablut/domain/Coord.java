@@ -3,11 +3,17 @@ package it.unibo.ai.didattica.competition.tablut.domain;
 /**
  * Class used to give a structure the the coordinates of th pawns
  * 
- * @author archi
+ * @author Arcangelo Alberico
  *
  */
 public class Coord {
+	/**
+	 * Row position
+	 */
 	public int x;
+	/**
+	 * Column position
+	 */
 	public int y;
 	
 	public Coord(int x, int y) {
@@ -21,7 +27,7 @@ public class Coord {
 	}
 	
     /**
-     * Computes manhattan distance between this coordinate and the passed one.
+     * Computes manhattan distance between this coordinate and the passed one
      * @param c
      * @return distance between coordinates
      */

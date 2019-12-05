@@ -70,7 +70,8 @@ public class TablutStudentClient extends TablutClient {
 		state.setTurn(State.Turn.WHITE);
 		rules = new GameAshtonTablut(99, 0, "garbage", "fake", "fake");
 		System.out.println("Ashton Tablut game");
-		AlphaBetaSearch algorithm = new AlphaBetaSearch(rules, super.getTimeout()-5);
+		AlphaBetaSearch algorithm = new AlphaBetaSearch(rules, 5, true, 3);
+//		AlphaBetaSearch algorithm = new AlphaBetaSearch(rules, super.getTimeout()-5, true, 3);
 		
 		System.out.println("You are player " + this.getPlayer().toString() + "!");
 		

@@ -14,7 +14,7 @@ import it.unibo.ai.didattica.competition.tablut.domain.*;
  * an aprroximation of all the lower depth values in case of timeout and
  * action ordering. Maximal computation time is specified in seconds.
  * 
- * @author archi
+ * @author Arcangelo Alberico
  *
  */
 public class AlphaBetaSearch {
@@ -24,30 +24,38 @@ public class AlphaBetaSearch {
     private Timer timer;
     public State.Turn turn;
     boolean winMove;
+    boolean iterative;
 
     /**
      * Creates a new search object for a given game.
      *
-     * @param game    The game.
-     * @param time    Maximal computation time in seconds.
+     * @param game    		the game
+     * @param time    		maximal computation time in seconds
+     * @param iterative		iterative version of the algorithm
+     * @param depthLimit	depth to which expand if not iterative
      */
-    public AlphaBetaSearch(Game game, int time) {
+    public AlphaBetaSearch(Game game, int time, boolean iterative, int depthLimit) {
         AlphaBetaSearch.game = game;
         this.timer = new Timer(time);
+        this.iterative = iterative;
+        this.currDepthLimit = depthLimit;
     }
 
     /**
-     * execute the algorithm on the passed state in order to return 
-     * the best action to be perfomed
+     * Execute the algorithm on the passed state in order to return 
+     * the best action to be perfomed.
      * 
-     * @param actualState
+     * It shuffles any time the allowed actions in order to have better perfomance.
+     * In case of the white player the king's actions are placed at the beginning 
+     * of the array in order to be evaluated first.
+     * 
+     * @param state 	state from which calculate the action according the algorithm
      * @return the action to be performed
      */
     public Action makeDecision(State state) {
     	
     	int actionIndex = 0;
-    	boolean iterative = true;
-        this.turn = state.getTurn();
+    	this.turn = state.getTurn();
     	State clonedState;
         List<Action> tmpAllActions = state.getAllLegalActions(game);
         List<Action> allActions = new ArrayList<Action>();
@@ -71,8 +79,6 @@ public class AlphaBetaSearch {
         timer.start();
         if(iterative)
         	currDepthLimit = 0;
-        else
-        	currDepthLimit = 3;
         
         do
         {
@@ -117,9 +123,9 @@ public class AlphaBetaSearch {
     /**
      * 
      * @param state
-     * @param alpha
-     * @param beta
-     * @param depth
+     * @param alpha 	aplha value for pruning
+     * @param beta		beta value for pruning
+     * @param depth		current depth of the tree
      * @return an utility value
      */
     public double maxValue(State state, double alpha, double beta, int depth) {
@@ -143,9 +149,9 @@ public class AlphaBetaSearch {
     /**
      * 
      * @param state
-     * @param alpha
-     * @param beta
-     * @param depth
+     * @param alpha 	aplha value for pruning
+     * @param beta		beta value for pruning
+     * @param depth		current depth of the tree
      * @return an utility value
      */
     public double minValue(State state, double alpha, double beta, int depth) {
@@ -168,8 +174,9 @@ public class AlphaBetaSearch {
     }
 
     /**
+     * Evaluate the state according the heuristic function given by the Heuristic class.
      * 
-     * @param state
+     * @param state		state to be evaluated
      * @return the heuristic value of the given state
      */
     protected double eval(State state) {
@@ -183,8 +190,9 @@ public class AlphaBetaSearch {
     }
 
     /**
-     * Given the array of the action values returns the first one among the highest
-     * @param actionVal
+     * Given the array of the action values returns the first one among the highest.
+     * 
+     * @param actionVal		array of action values
      * @return index of the most convenient action
      */
     public int getHighestValue(double[] actionVal) {
@@ -208,22 +216,44 @@ public class AlphaBetaSearch {
     }
 
     // nested helper classes
+    /**
+     * Static class to take time into account in the algorithm
+     * 
+     * @author Arcangelo Alberico
+     */
     private static class Timer {
         private long duration;
         private long startTime;
 
+        /**
+         * Creates a new timer.
+         * 
+         * @param maxSeconds 	max time in seconds to execute the algorithm
+         */
         Timer(int maxSeconds) {
             this.duration = 1000 * maxSeconds;
         }
 
+        /**
+         * Starts the timer.
+         */
         void start() {
             startTime = System.currentTimeMillis();
         }
 
+        /**
+         * Check if the time is passed.
+         * 
+         * @return true if the time is passed else false
+         */
         boolean timeOutOccurred() {
             return System.currentTimeMillis() > startTime + duration;
         }
         
+        /**
+         * Count the milliseconds passed from the calling of the start method
+         * @return milliseconds from the start
+         */
         long timePassed() {
         	return System.currentTimeMillis() - startTime;
         }

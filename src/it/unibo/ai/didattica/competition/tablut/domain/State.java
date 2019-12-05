@@ -153,7 +153,7 @@ public abstract class State {
 	}
 	
 	/**
-	 * 
+	 * This method checks the up, down, left and right position of a given coordinate
 	 * @param coord
 	 * @return the four neighbours of a given coordinate
 	 */
@@ -170,10 +170,8 @@ public abstract class State {
 	/**
 	 * this function remove a specified pawn from the board
 	 * 
-	 * @param row
-	 *            represents the row of the specific box
-	 * @param column
-	 *            represents the column of the specific box
+	 * @param row 		represents the row of the specific box
+	 * @param column 	represents the column of the specific box
 	 * 
 	 */
 	public void removePawn(int row, int column) {
@@ -236,7 +234,12 @@ public abstract class State {
 		ret = col + "" + (row + 1);
 		return ret;
 	}
-
+	
+	/**
+	 * This method clones the state to which is applied
+	 * 
+	 * @return the cloned state
+	 */
 	public State clone() {
 		Class<? extends State> stateclass = this.getClass();
 		Constructor<? extends State> cons = null;
@@ -350,6 +353,7 @@ public abstract class State {
 	}
 	
 	/**
+	 * Check if the game is over
 	 * 
 	 * @return true if the game is over
 	 */
@@ -358,7 +362,7 @@ public abstract class State {
 	}
 
 	/**
-	 * Updates the coordinates of the current state
+	 * Updates the attributes of the current state scanning the board
 	 */
 	public void updateCoords() {
 		int i = 0;
@@ -413,6 +417,8 @@ public abstract class State {
 	}
 	
 	/**
+	 * Gives the coordinates of all the pieces of the current player.
+	 * Note: the king is not taken into account for white, it must be retrieved separately
 	 * 
 	 * @return the list of the coordinates of the current player 
 	 * (if white player it doesn't return king's coordinates)
@@ -426,9 +432,10 @@ public abstract class State {
     }
 
 	/**
+	 * This method checks all the possible actions of the current player in order to validate them
 	 * 
-	 * @param rules
-	 * @return
+	 * @param rules 	rules to be taken into account in evaluating actions
+	 * @return all the possibile actions of the current player
 	 */
     public ArrayList<Action> getAllLegalActions(Game rules) 
     {
@@ -444,10 +451,11 @@ public abstract class State {
     }
     
     /**
+     * This method checks all the possible actions of a given position in order to validate them
      * 
-     * @param rules
-     * @param coord
-     * @return
+	 * @param rules 	rules to be taken into account in evaluating actions
+     * @param coord 	the position from which you want to evaluate all the possible actions
+     * @return all the possible actions in the given position
      */
     public ArrayList<Action> getLegalMovesForPosition(Game rules, Coord coord)
     {
@@ -462,12 +470,13 @@ public abstract class State {
     }
     
     /**
+     * This method checks all the possible actions of a given position in a given direction in order to validate them
      * 
-     * @param rules
-     * @param coord
-     * @param x
-     * @param y
-     * @return
+	 * @param rules 	rules to be taken into account in evaluating actions
+     * @param coord 	the position from which you want to evaluate all the possible actions
+     * @param x 		horizontal direction
+     * @param y 		vertical direction
+     * @return all the possible actions in the given position and direction
      */
     public ArrayList<Action> getLegalMovesInDirection(Game rules, Coord coord, int x, int y)
     {
@@ -506,8 +515,10 @@ public abstract class State {
     }	
     
     /**
+     * This method checks all the possible actions of the current player in order to
+     * generate a list of possible future states
      * 
-     * @param rules
+	 * @param rules 	rules to be taken into account in evaluating actions
      * @return all the successors of the current state according to the rules
      */
     public ArrayList<State> getSuccessors(Game rules) 

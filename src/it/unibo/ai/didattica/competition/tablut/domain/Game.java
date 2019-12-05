@@ -20,14 +20,13 @@ import it.unibo.ai.didattica.competition.tablut.exceptions.ThroneException;
 public interface Game {
 
 	/**
-	 * This method checks an action in a state: if it is correct the state is
-	 * going to be changed, if it is wrong it throws a specific exception
+	 * This method checks an action in a state: if it is correct the state 
+	 * nothing happens, if it is wrong it throws a specific exception
 	 * 
 	 * @param state
 	 *            the state of the game
 	 * @param a
 	 *            the action to be analyzed
-	 * @return the new state of the game
 	 * @throws BoardException
 	 *             try to move a pawn out of the board
 	 * @throws ActionException
@@ -51,6 +50,13 @@ public interface Game {
 			throws BoardException, ActionException, StopException, PawnException, DiagonalException, ClimbingException,
 			ThroneException, OccupitedException, ClimbingCitadelException, CitadelException;
 	
+	/**
+	 * This method peforms the action on the state
+	 * 
+	 * @param state 	state to which apply the action
+	 * @param a			action to be applied
+	 * @return the state which results from the action
+	 */
 	public State processMove(State state, Action a);
 
 }
