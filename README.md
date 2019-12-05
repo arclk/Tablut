@@ -36,6 +36,13 @@ ant compile
 ```
 
 The compiled project is in  the `build` folder.
+
+In order to generate the `.jar` in the `dist` folder, type in the project folder:
+
+```
+ant jar
+```
+
 Run the server with:
 
 ```
@@ -53,3 +60,13 @@ ant randomblack
 At this point, a window with the game state should appear.
 
 To be able to run other classes, change the `build.xml` file and re-compile everything
+
+In order to run the student player with the algorithm MinMax with AlphaBeta pruning run in two different console windows:
+
+```
+ant studentwhite
+
+ant studentblack
+```
+
+
