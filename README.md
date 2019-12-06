@@ -16,10 +16,6 @@ sudo apt install ant -y
 
 Now, clone the project repository:
 
-```
-git clone git@github.com:arclk/Tablut.git
-```
-
 ## Run the Server without Eclipse
 
 The easiest way is to utilize the ANT configuration script from console.
