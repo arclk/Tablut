@@ -14,7 +14,7 @@ sudo apt install openjdk-8-jdk -y
 sudo apt install ant -y
 ```
 
-Now, clone the project repository:
+Now, clone the project repository.
 
 ## Run the Server without Eclipse
 
