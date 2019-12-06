@@ -70,8 +70,7 @@ public class TablutStudentClient extends TablutClient {
 		state.setTurn(State.Turn.WHITE);
 		rules = new GameAshtonTablut(99, 0, "garbage", "fake", "fake");
 		System.out.println("Ashton Tablut game");
-		AlphaBetaSearch algorithm = new AlphaBetaSearch(rules, 5, true, 3);
-//		AlphaBetaSearch algorithm = new AlphaBetaSearch(rules, super.getTimeout()-5, true, 3);
+		AlphaBetaSearch algorithm = new AlphaBetaSearch(rules, super.getTimeout()-3, true, 3);
 		
 		System.out.println("You are player " + this.getPlayer().toString() + "!");
 		
@@ -89,10 +88,7 @@ public class TablutStudentClient extends TablutClient {
 			state = this.getCurrentState();
 			state.updateCoords();
 
-			System.out.println(state.toString());
-//			System.out.println(state.whiteCoords.toString());
-//			System.out.println(state.blackCoords.toString());
-			
+			System.out.println(state.toString());			
 
 			try {
 				Thread.sleep(1000);

@@ -1,9 +1,9 @@
 package it.unibo.ai.didattica.competition.tablut.AI;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
 
 
 import it.unibo.ai.didattica.competition.tablut.domain.*;
@@ -23,7 +23,6 @@ public class AlphaBetaSearch {
     protected int currDepthLimit;
     private Timer timer;
     public State.Turn turn;
-    boolean winMove;
     boolean iterative;
 
     /**
@@ -49,7 +48,7 @@ public class AlphaBetaSearch {
      * In case of the white player the king's actions are placed at the beginning 
      * of the array in order to be evaluated first.
      * 
-     * @param actualState	state from which calculate the action according the algorithm
+     * @param state 	state from which calculate the action according the algorithm
      * @return the action to be performed
      */
     public Action makeDecision(State state) {
@@ -59,10 +58,8 @@ public class AlphaBetaSearch {
     	State clonedState;
         List<Action> tmpAllActions = state.getAllLegalActions(game);
         List<Action> allActions = new ArrayList<Action>();
-//      System.out.println("Azioni: " + allActions.size());
-//    	System.out.println(state.getPlayerCoordSet());
-		System.out.println("Turno: " + state.getTurnNumber());
-
+        
+        // Mischio le mosse
         Collections.shuffle(tmpAllActions);
 
         // aggiungo le coordinate del re all'inizio in modo che le sue mosse vengono processate per prima
@@ -73,50 +70,34 @@ public class AlphaBetaSearch {
         else
         	allActions = tmpAllActions;
         	
-//      System.out.println(allActions);
         double[] actionVal = new double [allActions.size()];
-        winMove = false;
         timer.start();
         if(iterative)
         	currDepthLimit = 0;
         
+        // if the algorithm is iterative cycle until the timeout or you find a win move
         do
         {
         	if(iterative)
         		currDepthLimit++;
-//	        int i = 0;
 	        actionIndex = 0;
 	        for (Action action : allActions) 
 	        {
-//	        	System.out.println("Idx: " + i);
-//	        	i++;
-	        	
 	            clonedState = state.clone();
 	            actionVal[actionIndex] = minValue(game.processMove(clonedState, action), Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, 1);
 	            if (timer.timeOutOccurred()) {
-	            	System.out.println("Timer occurred");
 	                break; // exit from action loop
 	            }
 	            actionIndex++;
 	        }
-	        System.out.println(Arrays.toString(actionVal));
-//	      actionVal = tmpActionVal.clone();
-        } while(!timer.timeOutOccurred() && iterative && !winMove);
+        } while(!timer.timeOutOccurred() && iterative && !contains(actionVal, Double.POSITIVE_INFINITY));
         
         // finds the maximum action value in order to perform it
         int maxVal = 0;    
-        try {
-//        	System.out.println(Arrays.toString(actionVal));
-        	maxVal = getHighestValue(actionVal);
-        	System.out.println("Action value: " + actionVal[maxVal]);
+        maxVal = getHighestValue(actionVal);
         	
-        }catch(ArrayIndexOutOfBoundsException e) {
-        	System.out.println(state.getPlayerCoordSet());
-        	System.out.println(state.getAllLegalActions(game));
-        }
-        
         // prints the duration of the decision in order to test
-        System.out.println("Duration of the move: " + timer.timePassed() + "ms");
+        // System.out.println("Duration of the move: " + timer.timePassed() + "ms");
         return allActions.get(maxVal);
     }
 
@@ -182,11 +163,26 @@ public class AlphaBetaSearch {
     protected double eval(State state) {
     	
     	double value = Heuristic.evaluation(state, turn);
-    	if (value == Double.POSITIVE_INFINITY)
-    		this.winMove = true;
-//    	System.out.println(state);
-//    	System.out.println("Heuristic evaluation: " + value);
     	return value;
+    }
+    
+    /**
+     * This method checks if an array contains a value
+     * @param array 	array to be checked
+     * @param v 		value we want to check
+     * @return true if the value is in the array else false
+     */
+    public static boolean contains(final double[] array, final double v) {
+
+        boolean result = false;
+
+        for(double i : array)
+            if(i == v){
+                result = true;
+                break;
+            }
+
+        return result;
     }
 
     /**
@@ -197,25 +193,18 @@ public class AlphaBetaSearch {
      */
     public int getHighestValue(double[] actionVal) {
     	int maxIdx = 0; 
-    	System.out.println("Array da cui prendere il massimo");
-    	System.out.println(Arrays.toString(actionVal));
-
-    	try {
-	    	double maxValue = actionVal[0];
-	    	for(int i = 1; i < actionVal.length; i++) {
-	    		if (actionVal[i] > maxValue) {
-	    			maxValue = actionVal[i];
-	    			maxIdx = i;
-	    		}
-	    	}
-    	}catch(ArrayIndexOutOfBoundsException e) {
-    		System.out.println("Eccezione: ");
+    	
+    	double maxValue = actionVal[0];
+    	for(int i = 1; i < actionVal.length; i++) {
+    		if (actionVal[i] > maxValue) {
+    			maxValue = actionVal[i];
+    			maxIdx = i;
+    		}
     	}
-    	System.out.println("Massimo indice: " + maxIdx);
+    	
     	return maxIdx;
     }
 
-    // nested helper classes
     /**
      * Static class to take time into account in the algorithm
      * 
@@ -252,9 +241,11 @@ public class AlphaBetaSearch {
         
         /**
          * Count the milliseconds passed from the calling of the start method
+         * Note: this method is used only for testing
          * @return milliseconds from the start
          */
-        long timePassed() {
+        @SuppressWarnings("unused")
+		long timePassed() {
         	return System.currentTimeMillis() - startTime;
         }
     }

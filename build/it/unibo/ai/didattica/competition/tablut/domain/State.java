@@ -517,6 +517,10 @@ public abstract class State {
     /**
      * This method checks all the possible actions of the current player in order to
      * generate a list of possible future states
+	 *
+     * It shuffles any time the allowed actions in order to have better perfomance.
+     * In case of the white player the king's actions are placed at the beginning 
+     * of the array in order to be evaluated first.
      * 
 	 * @param rules 	rules to be taken into account in evaluating actions
      * @return all the successors of the current state according to the rules
@@ -538,8 +542,6 @@ public abstract class State {
         else
         	allActions = tmpAllActions;
         
-//    	System.out.println(allActions);
-    	// TODO: Mischia le mosse
     	// Iterate through all legal moves and apply them to a clone of the board state
     	for (Action action: allActions) {
     		State clonedState = (State) clone();

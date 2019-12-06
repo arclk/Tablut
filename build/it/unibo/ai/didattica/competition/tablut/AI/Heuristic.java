@@ -1,7 +1,6 @@
 package it.unibo.ai.didattica.competition.tablut.AI;
 
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -50,63 +49,37 @@ public class Heuristic {
 		double evaluationValue = 0.0;
     	if (player == State.Turn.WHITE) 
     	{
+    		// White evaluation function
     		// check if the current state is a winning or losing one and in the case return immediately
     		if (state.getTurn() == State.Turn.WHITEWIN)
     			return Double.POSITIVE_INFINITY;
     		if (state.getTurn() == State.Turn.BLACKWIN)
     			return Double.NEGATIVE_INFINITY;
     		
-/*			if (turn < 40) {
-				evaluationValue = yourPieceValue - oppPieceValue + kingMovesToEscape(state);
-			} else if (turn < 70) {
-				evaluationValue = yourPieceValue - oppPieceValue + 2.0 * kingMovesToEscape(state);
-    		} else {
-    			evaluationValue = yourPieceValue - oppPieceValue + 3.0 * kingMovesToEscape(state);
-    		}
-*/
-			/*
-			 * The White evaluation function becomes more aggressive as the game progresses in terms of:
-			 * the number of moves for the king to reach an escape position
-			 */
-    		val = kingInStrategicPos(state);
-    		if(val != 0.0) {
-    			System.out.println(state);
-    			System.out.println("Heuristic: " + val);
-    		}
+    		// White evaluation function becomes more aggressive as the game progresses
     		if (turn < 40) 
-    			evaluationValue = yourPieceValue - oppPieceValue - enemyPiecesAroundKing(state) + val;
+    			evaluationValue = yourPieceValue - oppPieceValue - enemyPiecesAroundKing(state) + kingInStrategicPos(state);
     		else if (turn < 70) 
-    			evaluationValue = yourPieceValue - oppPieceValue - 2.0 * enemyPiecesAroundKing(state) + val;
+    			evaluationValue = yourPieceValue - oppPieceValue - 2.0 * enemyPiecesAroundKing(state) + kingInStrategicPos(state);
     		else 
-    			evaluationValue = yourPieceValue - oppPieceValue - 3.0 * enemyPiecesAroundKing(state) + val;
+    			evaluationValue = yourPieceValue - oppPieceValue - 3.0 * enemyPiecesAroundKing(state) + kingInStrategicPos(state);
 		} 
     	else 
 		{
+    		// Black evaluation function
     		// check if the current state is a winning or losing one and in the case return immediately
 			if (state.getTurn() == State.Turn.BLACKWIN)
 				return Double.POSITIVE_INFINITY;
     		if (state.getTurn() == State.Turn.WHITEWIN)
     			return Double.NEGATIVE_INFINITY;
-/*			if (turn < 40) {
-			evaluationValue = yourPieceValue - oppPieceValue + piecesAroundCorners(state) - kingMovesToEscape(state) + enemyPiecesAroundKing(state);
-		} else if (turn < 70) {
-			evaluationValue = 2 * (yourPieceValue - oppPieceValue) + piecesAroundCorners(state) - 1.5 * kingMovesToEscape(state) + 6 * enemyPiecesAroundKing(state);
-		} else {
-			evaluationValue = 3 * (yourPieceValue - oppPieceValue) + piecesAroundCorners(state) - 1.5 * kingMovesToEscape(state) + 12 * enemyPiecesAroundKing(state);
-		}
-*/
-			/*
-			 * The Black evaluation function becomes more aggressive as the game progresses in terms of:
-			 * the number of enemy pieces around the king and
-			 * the number of moves for the king to reach an escape position
-			 */
 
+    		// Black evaluation function becomes more aggressive as the game progresses
 			if (turn < 40) 
-				evaluationValue = yourPieceValue - oppPieceValue + 2*enemyPiecesAroundKing(state);
+				evaluationValue = yourPieceValue - oppPieceValue + 3*enemyPiecesAroundKing(state) - val;
 			else if (turn < 70) 
-				evaluationValue = 2 * (yourPieceValue - oppPieceValue) + 6 * enemyPiecesAroundKing(state);
+				evaluationValue = 2 * (yourPieceValue - oppPieceValue) + 6 * enemyPiecesAroundKing(state) - val;
 			else 
-				evaluationValue = 3 * (yourPieceValue - oppPieceValue) + 12 * enemyPiecesAroundKing(state);
+				evaluationValue = 3 * (yourPieceValue - oppPieceValue) + 12 * enemyPiecesAroundKing(state) - val;
 		}
 
     	return evaluationValue;
@@ -120,7 +93,7 @@ public class Heuristic {
 		double numPieces = 0.0;
 		
 		List<Coord> kingNeighbors = state.getNeighbours(state.getKingPosition());
-//		System.out.println(kingNeighbors);
+
 		for (Coord c : kingNeighbors) {
 			if (state.getPawn(c.x, c.y) == State.Pawn.BLACK) {
 				numPieces += 0.25;
@@ -160,7 +133,7 @@ public class Heuristic {
 			value += 0.1;
 		}
 		
-/*		if (state.getPawn(8, 6) == State.Pawn.BLACK) {
+		if (state.getPawn(8, 6) == State.Pawn.BLACK) {
 			value += 0.1;
 		}
 		
@@ -191,10 +164,17 @@ public class Heuristic {
 		if (state.getPawn(2, 8) == State.Pawn.BLACK) {
 			value += 0.1;
 		}
-*/		
+		
 		return value;
 	}
 	
+	/**
+	 * This method checks if the king is in a crutial position in order to win the game.
+	 * Given the state the moethod checks if the king is into an escape row or column,
+	 * then checks if thath row or column hasn't any other pawns and if the king in that
+	 * position is threatened from any black pawn.
+	 * 
+	 */
 	public static double kingInStrategicPos(State state) {
 		double value = 0.0;
 		Coord kingPosition = state.getKingPosition();
@@ -375,92 +355,5 @@ public class Heuristic {
 		
 		return value;
 	}
-	
-	/**
-	 * This method returns a value representing the number of king moves to all the escapes.
-	 * Given a state, the method checks the min number of moves to each escape, and returns
-	 * a positive value if we are within 1-2 moves to a certain escape, and an even higher
-	 * value if we are withing 1-2 moves to more than one escape.
-	 * 
-	 */
-    public static double kingMovesToEscape(State state) {
-    	Coord kingPosition = state.getKingPosition();
-    	
-    	// Retrieves all legal moves for the king based on its current position
-    	ArrayList<Action> kingMoves = state.getLegalMovesForPosition(AlphaBetaSearch.game, kingPosition);
-    	
-    	double moveDistanceValue = 0.0;
-    	if (!kingMoves.isEmpty()) 
-    	{ // If the king actually has moves        	
-        	
-    		// Stores the min number of moves to reach each of the 16 escape positions
-    		int [] distances = new int [16];
-
-    		// Iterate through all the escape positions, calculating the min number of moves to reach each one
-    		int escapeIdx = 0;
-        	for (Coord escape : state.whiteWinPos) {
-        		distances[escapeIdx] = calcMinMovesToEscape(state, escape, 1, kingPosition);
-        		escapeIdx++;
-        	}
-        	// Generate the move's value based on proximity to the corner
-        	for (int i = 0; i < distances.length; i++) {
-        		switch (distances[i]) {
-                case 1:  moveDistanceValue += 15; // Being 1 move away is much more valuable
-                         break;
-                case 2:  moveDistanceValue += 2;
-                         break;
-                default: moveDistanceValue += 0;
-                         break;
-        		}
-        	}
-    	}
-    	    	
-    	return moveDistanceValue;
-    }
-
-    /**
-     * This method calculates the min number of moves for the king to reach a given escape position.
-     * 
-     * This is done by ignoring opponent moves. We simply care about how many consecutive moves it would
-     * take the king to reach a specific escape position.
-     * 
-     * This method projects a move onto the board state and recursively goes to the following move, but does
-     * not actually process the move in order to be more efficient (time and memory-wise).
-     * 
-     */
-    public static int calcMinMovesToEscape(State state, Coord escape, int moveCt, Coord kingPosition) {    	
-    	// Termination condition - either we're in a corner or it takes too many moves and thus becomes irrelevant
-    	if (moveCt == 3 || state.whiteWinPos.contains(kingPosition)) {
-    		return moveCt;
-    	}
-    	
-    	ArrayList<Action> kingMoves = state.getLegalMovesForPosition(AlphaBetaSearch.game, kingPosition);
-    	
-    	// We'll store the counts for each move here
-    	int [] moveCounts = new int[kingMoves.size()];
-
-    	// Iterate through current possible king moves and see how much closer we can get to a corner
-    	int moveIdx = 0;
-    	for (Action action : kingMoves) {
-			// If move brings you closer to the corner, attempt it
-			if (action.getFromPosition().distance(escape) > action.getToPosition().distance(escape)) {            	
-                moveCounts[moveIdx] = calcMinMovesToEscape(state, escape, moveCt + 1, action.getToPosition());
-                moveIdx++;
-			}
-    	}
-    	
-    	// Find the min number of moves to reach the escape, or return 50 if unreachable
-    	int min = 50;
-    	for (int i = 0; i < moveCounts.length; i++) {
-    		int current = moveCounts[i];
-    		if (current != 0 && current < min) {
-    			min = current;
-    		}
-    	}
-    	return min;
-    }
-
-	
-	
 	
 }
