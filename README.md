@@ -33,7 +33,7 @@ ant compile
 
 The compiled project is in  the `build` folder.
 
-In order to generate the `.jar` in the `dist` folder, type in the project folder:
+In order to generate the `.jar` into the `dist` folder, type in the project folder:
 
 ```
 ant jar
@@ -65,4 +65,9 @@ ant studentwhite
 ant studentblack
 ```
 
+In order to run the `.jar` file go into the `dist` folder and run:
 
+```
+java -jar StudentPlayer.java
+```
+It accepts 3 argument (in order): the role (“White” or “Black”), the timeout time (in seconds), the server IP address.
