@@ -70,4 +70,4 @@ In order to run the `.jar` file go into the `dist` folder and run:
 ```
 java -jar StudentPlayer.java
 ```
-It accepts 3 argument (in order): the role (“White” or “Black”), the timeout time (in seconds), the server IP address.
+It accepts 3 arguments (in order): the role (“White” or “Black”), the timeout time (in seconds), the server IP address.
