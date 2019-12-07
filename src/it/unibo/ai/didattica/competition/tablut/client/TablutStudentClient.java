@@ -45,7 +45,7 @@ public class TablutStudentClient extends TablutClient {
 			timeout = Integer.parseInt(args[1]);
 		}
 		if (args.length == 3) {
-			name = args[2];
+			timeout = Integer.parseInt(args[1]);
 			ipAddress = args[2];
 		}
 		System.out.println("Selected client: " + args[0]);
