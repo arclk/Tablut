@@ -71,3 +71,4 @@ In order to run the `.jar` file go into the `dist` folder and run:
 java -jar StudentPlayer.java
 ```
 It accepts 3 arguments (in order): the role (“White” or “Black”), the timeout time (in seconds), the server IP address.
+To make sure that the player doesn't exceed the timeout, the last three seconds are left to process and send the move.
