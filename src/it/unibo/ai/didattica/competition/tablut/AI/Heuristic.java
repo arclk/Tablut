@@ -28,7 +28,6 @@ public class Heuristic {
 		int turn;
 		turn = state.turnNumber;
 		State.Turn opponent;
-		double val = 0.0;
 		if(player == State.Turn.WHITE)
 			opponent = State.Turn.BLACK;
 		else
@@ -75,11 +74,11 @@ public class Heuristic {
 
     		// Black evaluation function becomes more aggressive as the game progresses
 			if (turn < 40) 
-				evaluationValue = yourPieceValue - oppPieceValue + 3*enemyPiecesAroundKing(state) - val;
+				evaluationValue = yourPieceValue - oppPieceValue + 3*enemyPiecesAroundKing(state);
 			else if (turn < 70) 
-				evaluationValue = 2 * (yourPieceValue - oppPieceValue) + 6 * enemyPiecesAroundKing(state) - val;
+				evaluationValue = 2 * (yourPieceValue - oppPieceValue) + 6 * enemyPiecesAroundKing(state);
 			else 
-				evaluationValue = 3 * (yourPieceValue - oppPieceValue) + 12 * enemyPiecesAroundKing(state) - val;
+				evaluationValue = 3 * (yourPieceValue - oppPieceValue) + 12 * enemyPiecesAroundKing(state);
 		}
 
     	return evaluationValue;
